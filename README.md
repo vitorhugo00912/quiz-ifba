@@ -1,221 +1,46 @@
-# quiz-ifba
+# quiz-ifba-estudo
 
-<!DOCTYPE html><html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quiz IFBA 2026</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #0d1b2a;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
-    }
-    header {
-      text-align: center;
-      padding: 20px;
-    }
-    .container {
-      max-width: 900px;
-      width: 100%;
-      padding: 20px;
-    }
-    .menu button {
-      background: #1b263b;
-      border: none;
-      color: #fff;
-      padding: 12px 20px;
-      margin: 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 16px;
-      transition: 0.3s;
-    }
-    .menu button:hover {
-      background: #415a77;
-    }
-    .quiz, .study {
-      display: none;
-    }
-    .question {
-      margin: 15px 0;
-      padding: 15px;
-      background: #1b263b;
-      border-radius: 10px;
-    }
-    .options label {
-      display: block;
-      margin: 8px 0;
-      cursor: pointer;
-    }
-    .result {
-      margin-top: 20px;
-      padding: 15px;
-      background: #1b263b;
-      border-radius: 10px;
-    }
-    button.finish {
-      margin-top: 20px;
-      background: #e63946;
-    }
-    button.retry {
-      margin-top: 10px;
-      background: #2a9d8f;
-    }
-    .study-section {
-      margin: 15px 0;
-      padding: 15px;
-      background: #1b263b;
-      border-radius: 10px;
-    }
-    .study-section h3 {
-      margin-top: 0;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>Quiz IFBA – Conteúdos 2026</h1>
-    <p>Escolha uma matéria para começar. Cada tentativa seleciona <b>10 questões aleatórias</b> do banco (sem repetir).</p>
-  </header>  <div class="container">
-    <div class="menu" id="menu">
-      <button onclick="startQuiz('portugues')">Português</button>
-      <button onclick="startQuiz('matematica')">Matemática</button>
-      <button onclick="startQuiz('ciencias')">Ciências</button>
-      <button onclick="startQuiz('humanas')">História & Geografia</button>
-      <button onclick="startQuiz('redacao')">Redação / Teoria</button>
-      <button onclick="openStudy()">Estudar Conteúdos</button>
-    </div><div id="quiz" class="quiz"></div>
+import { useState } from "react"; import { Card, CardContent } from "@/components/ui/card"; import { Button } from "@/components/ui/button";
 
-<div id="study" class="study">
-  <h2>Resumo dos Conteúdos – IFBA 2026</h2>
+// Questões de exemplo (você pode trocar pelo conteúdo real do IFBA 2026) const questions = { portugues: [ { q: "Qual é o sujeito da frase: 'Os alunos estudam bastante'?", a: "Os alunos" }, { q: "Encontre o verbo da frase: 'A menina correu rápido'.", a: "correu" }, // ... até 10 questões ], matematica: [ { q: "Qual é o resultado de 7 x 8?", a: "56" }, { q: "A raiz quadrada de 144 é?", a: "12" }, // ... até 10 questões ], humanas: [ { q: "Quem foi o primeiro presidente do Brasil?", a: "Deodoro da Fonseca" }, { q: "Qual é a capital da França?", a: "Paris" }, // ... até 10 questões ], natureza: [ { q: "Qual é o símbolo químico da água?", a: "H2O" }, { q: "Qual planeta é conhecido como planeta vermelho?", a: "Marte" }, // ... até 10 questões ], redacao: [ { q: "O que é uma tese em um texto dissertativo?", a: "É a ideia principal defendida" }, { q: "Quantos parágrafos em média tem uma redação do Enem?", a: "4 a 5" }, // ... até 10 questões ], };
 
-  <div class="study-section">
-    <h3>Português / Linguagens</h3>
-    <ul>
-      <li>Interpretação de textos</li>
-      <li>Ortografia e acentuação gráfica</li>
-      <li>Classes de palavras</li>
-      <li>Concordância verbal e nominal</li>
-      <li>Regência verbal e nominal</li>
-      <li>Uso da crase</li>
-    </ul>
-  </div>
+function Quiz({ subject, goToEstudos }) { const [step, setStep] = useState(0); const [answers, setAnswers] = useState([]); const [finished, setFinished] = useState(false);
 
-  <div class="study-section">
-    <h3>Matemática</h3>
-    <ul>
-      <li>Conjuntos numéricos (naturais, inteiros, racionais, irracionais)</li>
-      <li>Operações e expressões algébricas</li>
-      <li>Equações do 1º e 2º grau</li>
-      <li>Funções e gráficos</li>
-      <li>Geometria plana (perímetro, área, ângulos, triângulos, polígonos, círculo)</li>
-      <li>Probabilidade e estatística</li>
-    </ul>
-  </div>
+const qs = questions[subject];
 
-  <div class="study-section">
-    <h3>Ciências da Natureza</h3>
-    <ul>
-      <li><b>Biologia</b>: estrutura da célula, genética básica, ecologia e meio ambiente</li>
-      <li><b>Química</b>: transformações químicas, estados físicos da matéria, misturas e substâncias</li>
-      <li><b>Física</b>: energia, força, movimento, leis de Newton, calor e eletricidade</li>
-    </ul>
-  </div>
+function handleAnswer(ans) { setAnswers([...answers, ans]); if (step + 1 < qs.length) { setStep(step + 1); } else { setFinished(true); } }
 
-  <div class="study-section">
-    <h3>Ciências Humanas (História & Geografia)</h3>
-    <ul>
-      <li>História do Brasil: Brasil Colônia, Brasil Império, Independência e República</li>
-      <li>História Geral: Primeira e Segunda Guerra Mundial, Guerra Fria</li>
-      <li>Geografia: geografia do Brasil (aspectos físicos e humanos), geografia mundial</li>
-    </ul>
-  </div>
+function restartQuiz() { setStep(0); setAnswers([]); setFinished(false); }
 
-  <div class="study-section">
-    <h3>Redação</h3>
-    <ul>
-      <li>Texto dissertativo-argumentativo</li>
-      <li>Tese, desenvolvimento e conclusão</li>
-      <li>Coesão, coerência e clareza</li>
-      <li>Uso da norma culta da língua portuguesa</li>
-    </ul>
-  </div>
+return ( <Card className="p-4"> <CardContent> {!finished ? ( <div> <h2 className="text-xl font-bold mb-2">{qs[step].q}</h2> <Button onClick={() => handleAnswer(prompt("Digite sua resposta:"))}> Responder </Button> </div> ) : ( <div> <h2 className="text-xl font-bold mb-4">Gabarito</h2> {qs.map((q, i) => ( <p key={i}> <strong>{q.q}</strong><br /> Sua resposta: {answers[i]} <br /> Correto: {q.a} </p> ))} <div className="flex gap-2 mt-4"> <Button onClick={goToEstudos}>Estudar</Button> <Button onClick={restartQuiz}>Fazer outro quiz</Button> </div> </div> )} </CardContent> </Card> ); }
 
-  <button onclick="backToMenu()">Voltar</button>
+export default function App() { const [tab, setTab] = useState("estudos");
+
+return ( <div className="p-6"> <nav className="flex gap-4 mb-6"> <Button onClick={() => setTab("estudos")}>Estudos</Button> <Button onClick={() => setTab("portugues")}>Quiz Português</Button> <Button onClick={() => setTab("matematica")}>Quiz Matemática</Button> <Button onClick={() => setTab("humanas")}>Quiz Ciências Humanas</Button> <Button onClick={() => setTab("natureza")}>Quiz Ciências da Natureza</Button> <Button onClick={() => setTab("redacao")}>Quiz Redação</Button> </nav>
+
+{tab === "estudos" && (
+    <Card className="p-4">
+      <CardContent>
+        <h1 className="text-2xl font-bold mb-4">Conteúdos de Estudos - IFBA 2026</h1>
+        <p>
+          Aqui você encontra os conteúdos detalhados de Português, Matemática,
+          Ciências Humanas, Ciências da Natureza e Redação.
+        </p>
+        <ul className="list-disc ml-6 mt-2">
+          <li>Português: interpretação de texto, gramática, literatura...</li>
+          <li>Matemática: álgebra, geometria, porcentagem...</li>
+          <li>Ciências Humanas: história do Brasil, geografia, filosofia...</li>
+          <li>Ciências da Natureza: física, química, biologia...</li>
+          <li>Redação: tese, argumentos, coesão, conclusão...</li>
+        </ul>
+      </CardContent>
+    </Card>
+  )}
+
+  {tab !== "estudos" && tab !== "" && (
+    <Quiz subject={tab} goToEstudos={() => setTab("estudos")} />
+  )}
 </div>
 
-  </div>  <script>
-    const questionBank = { /* (banco de questões continua igual, não removido) */ };
+); }
 
-    let currentQuiz = [];
-
-    function startQuiz(subject) {
-      document.getElementById('menu').style.display = 'none';
-      document.getElementById('study').style.display = 'none';
-      const quizDiv = document.getElementById('quiz');
-      quizDiv.innerHTML = '';
-      quizDiv.style.display = 'block';
-
-      // Embaralhar e escolher 10 questões
-      currentQuiz = [...questionBank[subject]]
-        .sort(() => 0.5 - Math.random())
-        .slice(0, 10);
-
-      currentQuiz.forEach((q, i) => {
-        const qDiv = document.createElement('div');
-        qDiv.classList.add('question');
-        qDiv.innerHTML = `<p><b>${i+1}. ${q.q}</b></p>`;
-        const optDiv = document.createElement('div');
-        optDiv.classList.add('options');
-        q.options.forEach((opt, j) => {
-          optDiv.innerHTML += `<label><input type='radio' name='q${i}' value='${j}'> ${opt}</label>`;
-        });
-        qDiv.appendChild(optDiv);
-        quizDiv.appendChild(qDiv);
-      });
-
-      const finishBtn = document.createElement('button');
-      finishBtn.textContent = 'Finalizar';
-      finishBtn.classList.add('finish');
-      finishBtn.onclick = finishQuiz;
-      quizDiv.appendChild(finishBtn);
-    }
-
-    function finishQuiz() {
-      let score = 0;
-      let resultText = '';
-      currentQuiz.forEach((q, i) => {
-        const ans = document.querySelector(`input[name='q${i}']:checked`);
-        if(ans && parseInt(ans.value) === q.answer) score++;
-        resultText += `<p>${i+1}. ${q.q}<br><b>Resposta correta:</b> ${q.options[q.answer]}</p>`;
-      });
-      const quizDiv = document.getElementById('quiz');
-      quizDiv.innerHTML = `<div class='result'><h2>Você acertou ${score} de ${currentQuiz.length}</h2>${resultText}</div>`;
-      const retryBtn = document.createElement('button');
-      retryBtn.textContent = 'Tentar novamente';
-      retryBtn.classList.add('retry');
-      retryBtn.onclick = () => { location.reload(); };
-      quizDiv.appendChild(retryBtn);
-    }
-
-    function openStudy() {
-      document.getElementById('menu').style.display = 'none';
-      document.getElementById('quiz').style.display = 'none';
-      document.getElementById('study').style.display = 'block';
-    }
-
-    function backToMenu() {
-      document.getElementById('study').style.display = 'none';
-      document.getElementById('quiz').style.display = 'none';
-      document.getElementById('menu').style.display = 'block';
-    }
-  </script></body>
-</html>
